@@ -1,0 +1,11 @@
+flask
+pymupdf
+nltk
+numpy
+pandas
+scikit-learn
+mysql-connector-python
+langdetect
+underthesea
+flask_sqlalchemy
+flask-cors
