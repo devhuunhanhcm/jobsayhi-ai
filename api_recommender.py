@@ -19,6 +19,7 @@ import pickle
 import os
 from flask import Flask
 from flask_cors import CORS
+import requests
 
 # Download required NLTK data
 nltk.download('stopwords')
@@ -135,10 +136,10 @@ class TextProcessor:
 		return ' '.join(words)
 
 	@staticmethod
-	def extract_text_from_pdf (pdf_file):
+	def extract_text_from_pdf (pdf_bytes):
 		text = ""
 		try:
-			with fitz.open(stream=pdf_file.read(), filetype="pdf") as pdf:
+			with fitz.open(stream=pdf_bytes, filetype="pdf") as pdf:
 				for page in pdf:
 					text += page.get_text()
 		except Exception as e:
@@ -206,19 +207,35 @@ class JobRecommender:
 		return recommendations
 
 
+def download_google_drive_file (file_url):
+	# Extract file ID from the URL
+	file_id = file_url.split('/d/')[1].split('/view')[0]
+
+	# Construct direct download URL
+	download_url = f'https://drive.google.com/uc?id={file_id}'
+
+	try:
+		# Download file
+		response = requests.get(download_url)
+		response.raise_for_status()
+
+		return response.content
+	except requests.RequestException as e:
+		raise ValueError(f"Failed to download file: {str(e)}")
+
 # API Routes
 @app.route('/api/recommend', methods=['POST'])
 def recommend ():
 	try:
-		if 'cv' not in request.files:
-			return jsonify({'error': 'No CV file provided'}), 400
+		file_url = request.form.get('file_url')
+		if not file_url:
+			return jsonify({'error': 'No file URL provided'}), 400
 
-		cv_file = request.files['cv']
-		if cv_file.filename == '':
-			return jsonify({'error': 'No selected file'}), 400
+		# Download file content
+		pdf_bytes = download_google_drive_file(file_url)
 
 		# Process CV
-		cv_text = TextProcessor.extract_text_from_pdf(cv_file)
+		cv_text = TextProcessor.extract_text_from_pdf(pdf_bytes)
 		language = TextProcessor.detect_language(cv_text)
 		processed_cv = TextProcessor.preprocess_text(cv_text, language)
 
