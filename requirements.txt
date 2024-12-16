@@ -9,3 +9,9 @@ langdetect
 underthesea
 flask_sqlalchemy
 flask-cors
+
+transformers
+sentence-transformers
+tf-keras
+redis
+pathlib
