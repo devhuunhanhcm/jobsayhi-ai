@@ -1,7 +1,7 @@
+import io
 import nltk
 nltk.download('punkt')
-
-import fitz
+import PyPDF2
 import langdetect
 from underthesea import word_tokenize, pos_tag
 from nltk.tokenize import word_tokenize as nltk_tokenize
@@ -94,24 +94,33 @@ class TextProcessor:
         return TextProcessor.basic_preprocess(text)
 
     @staticmethod
-    def extract_text_from_pdf_bytes(pdf_bytes: bytes) -> str:
+    def extract_text_from_pdf_bytes (pdf_bytes: bytes) -> str:
         text = ""
         try:
-            with fitz.open(stream=pdf_bytes, filetype="pdf") as pdf:
-                for page in pdf:
-                    text += page.get_text()
+            # Create a PDF reader object from bytes
+            pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
+
+            # Extract text from each page
+            for page in pdf_reader.pages:
+                text += page.extract_text()
+
             return text
         except Exception as e:
             logger.error(f"Error processing PDF: {str(e)}")
             raise ValueError(f"Error processing PDF: {str(e)}")
 
     @staticmethod
-    def extract_text_from_pdf(pdf_file):
+    def extract_text_from_pdf (pdf_file):
         text = ""
         try:
-            with fitz.open(stream=pdf_file.read(), filetype="pdf") as pdf:
-                for page in pdf:
-                    text += page.get_text()
+            # Create a PDF reader object from file object
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+
+            # Extract text from each page
+            for page in pdf_reader.pages:
+                text += page.extract_text()
+
+            return text
         except Exception as e:
+            logger.error(f"Error processing PDF: {str(e)}")
             raise ValueError(f"Error processing PDF: {str(e)}")
-        return text
