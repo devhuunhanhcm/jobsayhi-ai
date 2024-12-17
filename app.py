@@ -458,8 +458,9 @@ def setup_app():
     return app, db, redis_client
 
 # WSGI Entry Point for cPanel
-application, db, redis_client = setup_app()
+app, db, redis_client = setup_app()
 
+application = app
 # Modify main block for WSGI compatibility
 if __name__ == '__main__':
-    application.run(host='127.0.0.1', port=5000, threaded=True)
+    app.run(host='127.0.0.1', port=5000, threaded=True)

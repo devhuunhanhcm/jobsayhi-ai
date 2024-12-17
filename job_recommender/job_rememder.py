@@ -62,14 +62,12 @@ class TransformerJobRecommender:
 
 			similarities = cosine_similarity([cv_embedding], self.job_embeddings)[0]
 
-			# Get all jobs with their similarity scores
 			jobs_with_scores = []
 			for idx, job_id in enumerate(self.job_ids):
 				job = Job.query.filter_by(id=job_id).first()
 				if job is None:
 					continue
 
-				# Filter by keyword if provided
 				if keyword:
 					if not (keyword.lower() in job.title.lower() or
 					        (job.description and keyword.lower() in job.description.lower())):
@@ -80,13 +78,13 @@ class TransformerJobRecommender:
 					'score': float(similarities[idx])
 				})
 
-			# Sort based on order_by parameter
 			if order_by == "date":
 				jobs_with_scores.sort(key=lambda x: x['job'].created_at, reverse=True)
-			else:  # default to similarity
+			else:
 				jobs_with_scores.sort(key=lambda x: x['score'], reverse=True)
 
-			# Calculate pagination
+
+
 			total_items = len(jobs_with_scores)
 			total_pages = (total_items + limit - 1) // limit
 			start_idx = (page - 1) * limit

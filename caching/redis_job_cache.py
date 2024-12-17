@@ -4,7 +4,6 @@ import json
 import numpy as np
 from datetime import datetime
 from typing import List, Tuple, Optional
-from text_processing import TextProcessor
 from models import Job
 
 logger = logging.getLogger(__name__)

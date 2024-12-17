@@ -41,37 +41,25 @@ class TextProcessor:
     def preprocess_vietnamese(text: str) -> str:
         """Tiền Xử lý tiếng việt """
         try:
-            # Tokenize Vietnamese text
             tokens = word_tokenize(text)
-
-            # Join tokens back together
             processed_text = ' '.join(tokens)
-
-            # Remove special characters and normalize spacing
             processed_text = re.sub(r'[^\w\s]', ' ', processed_text)
             processed_text = re.sub(r'\s+', ' ', processed_text).strip().lower()
 
             return processed_text
         except Exception as e:
             logger.error(f"Error in Vietnamese preprocessing: {str(e)}")
-            # Fallback to basic preprocessing if advanced processing fails
             return TextProcessor.basic_preprocess(text)
 
     @staticmethod
     def preprocess_english(text: str) -> str:
         try:
-            # Clean text from special characters and normalize spacing
             text = TextProcessor.clean_text(text)
-
-            # Tokenize into sentences for better context preservation
             sentences = sent_tokenize(text)
             processed_sentences = []
 
             for sentence in sentences:
-                # Tokenize words
                 tokens = nltk_tokenize(sentence)
-
-                # Keep the tokens as they are
                 processed_sentences.append(' '.join(tokens))
 
             return ' '.join(processed_sentences)
@@ -113,13 +101,10 @@ class TextProcessor:
     def extract_text_from_pdf (pdf_file):
         text = ""
         try:
-            # Create a PDF reader object from file object
             pdf_reader = PyPDF2.PdfReader(pdf_file)
 
-            # Extract text from each page
             for page in pdf_reader.pages:
                 text += page.extract_text()
-
             return text
         except Exception as e:
             logger.error(f"Error processing PDF: {str(e)}")
